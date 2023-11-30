@@ -17,20 +17,24 @@ class FlightListView(ListView):
 
 # search flight page
 def search_flights(request):
+    all_air = Airport.objects.all()
     if request.method == 'GET':
-        all_air = Airport.objects.all()
         errors = {'origin': 'Please select an origin airport.',
                   'destination': 'Please select a destination airport.'}
         context = {'errors': errors, 'origin_airports': all_air, 'destination_airports': all_air}
         return render(request, 'flights/search.html', context)
     if request.method == "POST":
-        print(request.POST.get("origin"))
-        print(request.POST.get("destination"))
-        all_air = Airport.objects.all()
-        errors = {'origin': 'Please select an origin airport.',
-                  'destination': 'Please select a destination airport.'}
-        context = {'errors': errors, 'origin_airports': all_air, 'destination_airports': all_air}
-        return render(request, 'flights/search.html', context)
+        origin_id = request.POST.get('origin')
+        destination_id = request.POST.get('destination')
+        if origin_id and destination_id:
+            origin_id = int(origin_id)
+            destination_id = int(destination_id)
+            flights = Flight.objects.filter(origin_id=origin_id, destination_id=destination_id)
+            context = {"flights": flights, 'origin_airports': all_air, 'destination_airports': all_air}
+            return render(request, 'flights/search.html', context)
+        else:
+            context = {'origin_airports': all_air, 'destination_airports': all_air}
+            return render(request, 'flights/search.html', context)
 # each flight page
 
 
